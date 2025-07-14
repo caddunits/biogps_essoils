@@ -20,4 +20,48 @@ However, We keep in the repository the script to create the file RDS from the
 set of CSV files.
 
 
+#### Data mapping Uniprot <-> KEGG pathways
+2. Run the script step2a_read_kegg_data.R (to be run with several codes)
+This script was used to extract KEGG data corresponding to different values of
+org_code (retrieved in the website https://www.kegg.jp/brite/br08611)
 
+For some values of org_code, the script may fail, because of some problems 
+with the access, with the following error message
+"Errore in .getUrl(url, .flatFileParser) : Forbidden (HTTP 403)."
+The problem was solved by adding Sys.sleep(x), with x=0.3
+
+The script saves data into a RDS file (one for each org_code). We cannot put 
+in the repository the RDS data, but only the script to create the file RDS by
+accessing the KEGG webserver through the R package KEGGREST keggList(org_code)
+
+For each org_code, at the end of the script we report the success_rate, 
+a percentage value which estimates how many objects have been retrieved, 
+by running the command keggList(org_code)
+This data is reported as supplementary information in the paper. 
+
+In order to collect all the information from different .RDS files,
+use the additional script step2b_check_kegg_data.R 
+(it produces an xlsx file, with the information - numer of uniprot, 
+number of pathways, ... available as supplementary information).
+
+
+3. Run the script step3_prepare_data_kegg_mapping.R
+This script creates a file named "kegg_bacteria_uniprot.RDS"
+which is stored in the directory data/Mapping_data
+and contains the information from all the .RDS files obtained for the different 
+bacteria (previous point).
+
+# ATTENZIONE: NELLA PARTE FINALE PROPOSTA MODIFICA PER SEMPLIFICARE SEQUENZA, 
+# DA VALUTARE ED AGGIORNARE CODICE
+
+
+#### Data mapping Uniprot <-> Genes
+3. Run the script step4_prepare_data_genes_mapping.R
+This script creates a file named "gene_uniprot.RDS"
+The mapping is limited to the Uniprot entries which have a correspondence in
+the PDB archive. In fact, data are taken from the web (file pdbtosp.txt from Uniprot web site)
+https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/docs/pdbtosp.txt
+A data mining procedure elaborates the data by including only some methods:
+XRAY, NMR, EM, NEUTRON, IR, FIBER, OTHER.
+The data contains the mapping for all the organisms, not only those studied
+in the present work.

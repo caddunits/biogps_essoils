@@ -56,7 +56,7 @@ bacteria (previous point).
 
 
 #### Data mapping Uniprot <-> Genes
-3. Run the script step4_prepare_data_genes_mapping.R
+4. Run the script step4_prepare_data_genes_mapping.R
 This script creates a file named "gene_uniprot.RDS"
 The mapping is limited to the Uniprot entries which have a correspondence in
 the PDB archive. In fact, data are taken from the web (file pdbtosp.txt from Uniprot web site)
@@ -65,3 +65,13 @@ A data mining procedure elaborates the data by including only some methods:
 XRAY, NMR, EM, NEUTRON, IR, FIBER, OTHER.
 The data contains the mapping for all the organisms, not only those studied
 in the present work.
+
+
+#### Data from bacteria
+5. Run the script step5_prepare_data_bacteria.R
+This script creates a file named "bacteria_data.RDS" which contains
+info on bacteria, including codes on different databases (ATCC, KEGG)
+Input data is a manually curated file (BACTERIADATA.xlsx) starting from the 
+five-letter organism codes extracted from the dataframe previously obtained; 
+information for data curation is obtained from Uniprot.
+

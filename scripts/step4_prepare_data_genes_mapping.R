@@ -240,7 +240,6 @@ pdbtosp_extract_content <- function(df, methods=c("XRAY", "NMR", "EM",
 }
 
 
-# repo_dir <- "C:/GITHUB_REPO/eoanalysis"
 repo_dir <- getwd()
 
 # Input

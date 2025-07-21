@@ -29,104 +29,6 @@ normalize_as_cytoscape <- function(x) { (x - min(x)) / (max(x) - min(x)) }
 # compared to a given threshold
 perc_rank <- function(x, x_perc) { sum(x_perc < x) }
 
-# create_data_for_heatmap_alloils <- function(df, sel_bact) {
-#   
-#   sel_targets_df <- df %>% 
-#     dplyr::filter(bacteria %in% sel_bact) %>% 
-#     dplyr::select(genesymbol, fullname, zzscore) %>% 
-#     dplyr::group_by(fullname, genesymbol) %>%
-#     dplyr::add_count() %>% 
-#     dplyr::summarise(max_zzscore = max(zzscore),)
-#   
-#   sel_targets_wide_df <- sel_targets_df %>%
-#     tidyr::pivot_wider(names_from = fullname, values_from = max_zzscore)
-#   
-#   sel_targets_wide_df[is.na(sel_targets_wide_df)] <- 0
-#   
-#   return(sel_targets_wide_df)
-#   
-# }
-
-
-# create_data_for_heatmap_phytocomplexes <- function(df, sel_bact) {
-#   
-#   sel_targets_wide_df <- df %>% 
-#     dplyr::filter(bacteria==sel_bact) %>% 
-#     dplyr::select(genesymbol, oil_eng, sum_contr) %>% 
-#     tidyr::pivot_wider(names_from = oil_eng, values_from = sum_contr)
-#   
-#   sel_targets_wide_df[is.na(sel_targets_wide_df)] <- 0
-#   
-#   return(sel_targets_wide_df)
-#   
-# }
-
-
-# create_complex_heatmap_targets <- function(df, output_filename, 
-#                                            legendtitle,
-#                                            width, height, 
-#                                            row_size, col_size, 
-#                                            col_angle, ceiling) {
-#   
-#   mycols <- circlize::colorRamp2(
-#     breaks = c(0, ceiling), 
-#     colors = c("white", "red")
-#   )
-#   
-#   # columns 1 and 2 are: fullname, phytoclass
-#   # columns 1 is genesymbol
-#   x <- as.matrix(df[,c(2:ncol(df))])
-#   
-#   row.names(x) <- df$genesymbol
-#   
-#   hm1 <- Heatmap(
-#     x, 
-#     # column_title = "Variables", 
-#     # row_title = "Samples",
-#     
-#     # Cells
-#     rect_gp = gpar(col = "lightgray", lwd = 0.3),
-#     
-#     # Legend
-#     show_heatmap_legend = TRUE,
-#     heatmap_legend_param = list(
-#       title = legendtitle,
-#       # title = expression(-log[10]("Pvalue")),
-#       # title = "-log10(pvalue)",
-#       direction = "horizontal"
-#     ),
-#     
-#     # Rows
-#     show_row_names = TRUE, 
-#     row_names_side = "right",
-#     row_names_gp = gpar(col = "black", fontsize = row_size),
-# 
-#     row_title_rot = 0,
-#     cluster_rows = TRUE,
-#     row_dend_side = "left",
-#     
-#     # Columns
-#     show_column_names = TRUE,
-#     column_names_gp = gpar(fontsize = col_size),
-#     
-#     cluster_columns = TRUE,
-#     column_names_rot = col_angle,
-#     
-#     border = TRUE,
-#     col = mycols
-#     
-#   )
-#   
-#   # width and height are in inches
-#   svg(output_filename, width = width, height = height) 
-#   draw(hm1, heatmap_legend_side = "bottom")
-#   dev.off()
-#   
-#   return()
-#   
-# }
-
-
 
 
 # Change this line according to the path of your repository
@@ -163,19 +65,6 @@ df_bacteria <- readRDS(file = file.path(mapp_dir, "bacteria_data.RDS"))
 df_composition_new <- readRDS(file = file.path(mapp_dir, "composition_new.RDS"))
 
 
-# 
-# QUA INSERITO CODICE RIADATTATO DA GIOVANNI, MA SI POTREBBE SPOSTARE SU CONFIG
-# 
-# Then, download from STRINGdb data for each bacteria
-# 
-# species_mapping <- c(
-#   "Staphylococcus aureus" = 93061,
-#   "Staphylococcus epidermidis" = 176279,
-#   "Enterococcus faecalis" = 1260356,
-#   "Escherichia coli" = 199310,
-#   "Klebsiella pneumoniae" = 272620,
-#   "Pseudomonas aeruginosa" = 208964
-# )
 
 string_db_list <- list()
 for (bact in config$wanted_bacteria) {
@@ -223,8 +112,6 @@ df_targets_final <- df_targets_bact %>%
   dplyr::filter(!is.na(bacteria)) %>% 
   dplyr::filter(perc_comp > config$threshold_comp)
 
-# 16-06-2025: added filter on bacteria:
-# 16805 => 15605
 
 # 
 # Write data into an excel file
@@ -414,17 +301,8 @@ for (bact in bacteria) {
         avg_centrality = (closeness_norm+betweenness_norm+degree_norm)/3
       )
     
-    # Append data to the lists (network targets and details)
-    # network_details_list[[idx]] <- df_centrality # ATTENZIONE PROBABILMENTE VA TOLTA
-    
     # We store all the targets (searched) with the data found 
     # whereas in the other list we store only the data found
-    # df_tmp <- sel_targets_df %>% 
-    #   dplyr::left_join(df_mapping, by=c("genesymbol", "oil_eng",
-    #                                     "bacteria", "sum_contr")) %>%
-    #   dplyr::select(-STRING_id)
-    # network_targets_list[[idx]] <- df_tmp
-    
     network_targets_list[[idx]] <- sel_targets_df %>% 
       dplyr::left_join(df_centrality, by=c("genesymbol", "oil_eng", 
                                            "bacteria", "sum_contr")) %>% 
@@ -475,3 +353,39 @@ if (config$debug) {
     path = file.path(output_dir, "Results_targetfishing.xlsx")
   )
 }
+
+
+#
+# This is to check which top central nodes have alkso good sum_contr
+# (as reported in Table 4)
+# 
+centrality_df <- dplyr::bind_rows(network_targets_list)
+
+for (wanted_oil in c("Thyme", "Oregano", "Cinnamon")) {
+  for (wanted_bacteria in c("Escherichia coli", "Pseudomonas aeruginosa", "Staphylococcus aureus")) {
+    
+    df_tmp <- centrality_df %>% 
+      dplyr::filter(oil_eng==wanted_oil, bacteria==wanted_bacteria) %>%
+      dplyr::arrange(desc(sum_contr)) %>% 
+      dplyr::group_by(oil_eng,bacteria) %>% 
+      dplyr::slice_head(prop = 0.2) %>% 
+      dplyr::ungroup()
+    
+    df_tmp_centr <- centrality_df %>% 
+      dplyr::filter(oil_eng==wanted_oil, bacteria==wanted_bacteria) %>% 
+      dplyr::arrange(desc(avg_centrality)) %>% 
+      dplyr::group_by(oil_eng,bacteria) %>% 
+      dplyr::slice_head(n = 10) %>% 
+      dplyr::ungroup() %>% 
+      dplyr::mutate(check = genesymbol %in% df_tmp$genesymbol)
+    
+    cat("\n\nOIL:", wanted_oil, "BACTERIUM:", wanted_bacteria)
+    df_tmp_centr %>% 
+      dplyr::filter(check) %>% 
+      dplyr::select(genesymbol) %>% 
+      print()
+    
+  }
+}
+
+

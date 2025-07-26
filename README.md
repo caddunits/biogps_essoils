@@ -98,13 +98,6 @@ of the job it takes several time to save data and exit.
 The script first creates an empty database and then populates with some data
 for the data linked to the pockets (pdb, uniprot, genes, pathways).
 
-
-
-# SIAMO QUA
-
-
-
-
 8. Run the script step08_prepare_data_biogps.R
 The script reads data from the database (zzscores_molpoc, zscores_mol and zscores_poc)
 and saves an object in the format .RDS to be used in the analysis.
@@ -153,11 +146,13 @@ target_curation
 pdb_curation
 pubmed
 pocket_curation
+The sheet Non_ecoli reports data tha were removed 
+(originally present for some errors)
 
 In the sheet multiple_genes, for each bacteria we report genes as groups 
 whenever they correspond to the same complex or should be considered as
 duplicates for any other reason. 
-Genes from the analysis that have this peculiarity are the following:
+Some genes from the analysis that have this peculiarity are the following:
 Staphylococcus aureus	ACCA	ACCA/ACCD
 Staphylococcus aureus	ACCD	ACCA/ACCD
 Pseudomonas aeruginosa	AMIC	AMIC/AMIR
@@ -178,17 +173,14 @@ Escherichia coli	CARB	CARA/CARB
 Escherichia coli	NARG	NARG/NARH/NARI
 Escherichia coli	NARH	NARG/NARH/NARI
 Escherichia coli	NARI	NARG/NARH/NARI
-
+...
 
 In the script these are then considered as the same genegroup and
 the higher centrality value along the genegroup is assigned
 In a future development, this part should be automathized
 
-
 The script produces the two barplots (for major and minor bacteria) and
 the heatmaps for the major bacteria
-(the user should set the variable n_top_genes. Use 15 to get the results shown
-in the figure of the paper, 30 for the figures in the supporting information)
 
 Data are read from the XLSX file of the previous step
 First, data are considered focusing on molecules; the question is:
@@ -218,9 +210,4 @@ create a new dataframe in which we add a new column, that is named 'gene'.
 This column is the name of grouped genes (whenever available), otherwise it is
 the old genesymbol name. Then we use this (column gene) with bacteria and
 oil_eng to group rows and take only one row for group (with highest centrality).
-
-In order to prepare the heatmaps of the figures reported in the paper or as
-supporting information, we set the value of the variable n_top_genes to 15 
-(for the paper) or 30 (for the supporting information).
-Maybe 20 ad that's it.
 

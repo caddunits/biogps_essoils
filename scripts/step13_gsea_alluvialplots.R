@@ -57,6 +57,21 @@ source(file.path(repo_dir, "scripts", "config.R"))
 data_dir <- file.path(repo_dir, "data")
 mapp_dir <- file.path(data_dir, "Mapping_data")
 
+# 
+# Manual curation to deal with genesymbol names
+# 
+fullpath_datacuration <- file.path(data_dir, "Curation_data", "manual_curation.xlsx")
+
+# df_multiple <- readxl::read_xlsx(path=fullpath_datacuration,
+#                                  sheet = "multiple_genes")
+
+df_curation_targets <- readxl::read_xlsx(path=fullpath_datacuration,
+                                          sheet = "proteins")
+
+# if (orig_protein_name %in% df_curation_proteins$genesymbol) {
+#   new_protein_name <- df_curation_proteins$protein[df_curation_proteins$genesymbol==orig_protein_name]
+#   rownames(matrix1)[n] <- new_protein_name
+  
 # Output
 output_dir <- file.path(repo_dir, "output", "gsea_alluvialplots")
 
@@ -96,21 +111,6 @@ df_gsea_molecules_interaction <- readxl::read_xlsx(path=pathwaysenrichment_gsea,
 df_gsea_targets_interaction <- readxl::read_xlsx(path=pathwaysenrichment_gsea,
                                                     sheet = "Targets_interaction")
 
-# NON SI CAPISCE: 
-# Coppia Fatty acid metabolism - oregano
-# Nel plot alluvial ci sta FABG che in targets_interactions non ci sta
-# Nel plot alluvial ci sta ATOB che in targets_interactions non ci sta
-# Nel plot ci stanno 7 target ma sia per origano che per timo sarebbero solo 5
-# FABG nel df targets_interactions  (df_gsea_targets_interaction) sta solo 
-# in P.aeruginosa (STRONG) e non in E.coli
-# ATOM invece ci sta come STRONG per E.coli
-# Nel file excel precedente (Results_targetsfishing.xlsx) invece nel foglio
-# AllOils FABG per P.aeruginosa non ha neanche una molecola con zscore_poc > 1
-# ma lo stesso FABG anche per E.coli non ha neanche una molecola con zscore_poc > 1
-# quindi è corretto che non ci siano. Andrebbero quindi eliminate dal plot alluvial
-# 
-
-
 alplot_params <- list(
   size_oil = 5,
   size_mol = 4,
@@ -124,8 +124,9 @@ alplot_params <- list(
 
 processed_pairs <- c()
 
+
 # Loop over all the pathways
-# for (p in 50:50) {
+# for (p in 57:57) {
 for (p in 1:nrow(df_gsea_pathways)) {
   
   wanted_bacteria <- df_gsea_pathways$bacteria[p]
@@ -147,21 +148,23 @@ for (p in 1:nrow(df_gsea_pathways)) {
     dplyr::select(genesymbol) %>% 
     dplyr::distinct()
   
-  # Extract relevant data
-  # 2025-06-09: added filters by list of strong interactions
-  # ATOB Oregano 401 su 1184 (ref=4.977; orig=2.81; new=10.83)
-  # 
-  # ATOB Thyme 505 sy 1184 (ref=5.899; orig=0.73; new=9.43)
-  # perche non è strong per Thyme? perche non ci sta nel core enrichment
-  # probabilmente per via del ranking più basso
-  # 
   df_gsea_single_pathway <- df_gsea_molecules_interaction %>% 
     dplyr::filter(bacteria == wanted_bacteria,
                   pathway == wanted_pathway) %>% 
     dplyr::filter(genesymbol %in% strong_targets$genesymbol) %>% 
     dplyr::select(bacteria, pathway, oil, fullname, phytoclass, perc_comp, genesymbol) %>% 
     dplyr::rename(molecule = fullname) %>% 
-    dplyr::distinct()
+    dplyr::distinct() %>% 
+    dplyr::left_join(df_curation_targets, by=c("bacteria", "genesymbol"))
+  
+  missing_curation <- df_gsea_single_pathway$genesymbol[is.na(df_gsea_single_pathway$protein)]
+  if (length(missing_curation)==0) {
+    cat("All targets are manually curated")
+    # print(unique(df_gsea_single_pathway$genesymbol))
+  } else {
+    cat("Please check and curate the name of the following targets:\n")
+    print(unique(missing_curation))
+  }
   
   # Define whether use one line or two lines for the pathway name
   nr_flows <- nrow(df_gsea_single_pathway)
@@ -192,6 +195,7 @@ for (p in 1:nrow(df_gsea_pathways)) {
     df_gsea_single_pathway$pathway <- twolined_pathwayname
   }
   
+  
   # Use more lines for the genesymbol name when there is the symbol / 
   genesymbol_newline <- gsub("/", "\n", df_gsea_single_pathway$genesymbol)
   df_gsea_single_pathway$genesymbol <- genesymbol_newline
@@ -214,8 +218,10 @@ for (p in 1:nrow(df_gsea_pathways)) {
       dplyr::arrange(dplyr::desc(object)),
     
     df_gsea_single_pathway %>% 
-      dplyr::select(object=genesymbol) %>%
+      dplyr::select(object=protein) %>%
       dplyr::mutate(category="genesymbol", additional=NA) %>%
+      # dplyr::select(object=genesymbol) %>%
+      # dplyr::mutate(category="genesymbol", additional=NA) %>%
       dplyr::arrange(dplyr::desc(object)),
     
     df_gsea_single_pathway %>% 
@@ -282,7 +288,8 @@ for (p in 1:nrow(df_gsea_pathways)) {
   alplot <- ggplot(data = df_gsea_single_pathway,
                    aes(axis1 = oil,
                        axis2 = molecule,
-                       axis3 = genesymbol,
+                       axis3 = protein,
+                       # axis3 = genesymbol,
                        axis4 = pathway)) +
     geom_alluvium(aes(fill = oil), show.legend = FALSE) +
     scale_fill_manual(name = "", values = assigned_colors) +
@@ -295,7 +302,8 @@ for (p in 1:nrow(df_gsea_pathways)) {
               size = strata_addedinfo$textsize,
               angle = strata_addedinfo$angle) +
     theme_minimal() +
-    scale_x_discrete(limits = c("Oil", "Molecule", "Gene", "Pathway"),
+    scale_x_discrete(limits = c("Oil", "Molecule", "Target", "Pathway"),
+    # scale_x_discrete(limits = c("Oil", "Molecule", "Gene", "Pathway"),
                      expand = c(0, 0)) + 
     ggtitle(sprintf("%s: Composition and Targets", wanted_bacteria),
             subtitle = sprintf("Pathway = %s", wanted_pathway)) +

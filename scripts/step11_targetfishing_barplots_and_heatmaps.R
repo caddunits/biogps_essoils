@@ -7,15 +7,6 @@ library(circlize)
 library(ComplexHeatmap)
 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-# ATTENZIONE: CLPP per alpha-terpineol (S.aureus) ha due valori
-#             questo non dovrebbe succedere e dovremmo prendere valore max
-#             sarebbe quindi da vedere negli step precedenti perche accade.
-#             Per ora però lo risolviamo qua (vedi sotto: RISOLUZIONE PROBLEMA).
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
-
-
-
 # 
 # FUNCTIONS --------------------------------------------------------------------
 #
@@ -170,7 +161,11 @@ df_curation_targets <- readxl::read_xlsx(path=fullpath_datacuration,
                                          sheet = "target_curation")
 
 df_curation_proteins <- readxl::read_xlsx(path=fullpath_datacuration,
-                                          sheet = "proteins")
+                                          sheet = "proteins") %>% 
+  dplyr::select(genesymbol, protein) %>% 
+  dplyr::distinct()
+# Note: given that targets name is the same for different bacteria
+#       (for the same target) we can operate the given simplification above
 
 # 
 # Read data from excel about centrality: this is an average of different scores

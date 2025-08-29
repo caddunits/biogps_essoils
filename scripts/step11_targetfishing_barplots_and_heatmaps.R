@@ -5,7 +5,7 @@ library(writexl)
 library(ggplot2)
 library(circlize)
 library(ComplexHeatmap)
-
+library(svglite)
 
 # 
 # FUNCTIONS --------------------------------------------------------------------

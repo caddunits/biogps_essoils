@@ -46,7 +46,7 @@ mapp_dir <- file.path(data_dir, "Mapping_data")
 output_dir <- file.path(repo_dir, "output", "target_fishing")
 
 # Create the ouput directory if it does not exist
-dir.create(output_dir, showWarnings = FALSE)
+dir.create(output_dir,recursive = TRUE)
 
 
 
@@ -387,5 +387,6 @@ for (wanted_oil in c("Thyme", "Oregano", "Cinnamon")) {
     
   }
 }
+
 
 

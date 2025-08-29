@@ -158,6 +158,9 @@ db_dir <- file.path(repo_dir, "db")
 
 
 # Output
+if (!file.exists(file.path(data_dir, "Biogps_zscore_data"))){
+  dir.create(file.path(data_dir, "Biogps_zscore_data"))
+}
 biogps_data <- file.path(data_dir, "Biogps_zscore_data", "biogps_data.RDS")
 
 
@@ -207,10 +210,6 @@ zscores <- list(
 
 saveRDS(object=zscores, file=biogps_data)
 
-
-# 
-# ATTENZIONE: SEMBRA CHE QUESTA SI USI SOLO PER ALLUVIAL PLOT, 
-# QUINDI NON LO METTIAMO QUA
 # 
 # Refined data: with the function refine_zzscore_data we select the best value 
 # for each gene (we keep only the best pocket-molecule pair) 

@@ -126,7 +126,7 @@ processed_pairs <- c()
 
 
 # Loop over all the pathways
-# for (p in 57:57) {
+# for (p in 12:12) {
 for (p in 1:nrow(df_gsea_pathways)) {
   
   wanted_bacteria <- df_gsea_pathways$bacteria[p]
@@ -195,11 +195,16 @@ for (p in 1:nrow(df_gsea_pathways)) {
     df_gsea_single_pathway$pathway <- twolined_pathwayname
   }
   
-  
+  # RIMUOVERE 3 linee
   # Use more lines for the genesymbol name when there is the symbol / 
-  genesymbol_newline <- gsub("/", "\n", df_gsea_single_pathway$genesymbol)
-  df_gsea_single_pathway$genesymbol <- genesymbol_newline
+  # genesymbol_newline <- gsub("/", "\n", df_gsea_single_pathway$genesymbol)
+  # df_gsea_single_pathway$genesymbol <- genesymbol_newline
 
+  # Use more lines for the protein name when there is the symbol / 
+  protein_newline <- gsub("/", "\n", df_gsea_single_pathway$protein)
+  df_gsea_single_pathway$protein <- protein_newline
+  
+  
   assigned_colors <- assign_flow_colors(oils=df_gsea_single_pathway$oil)
   
   # Stratified data is created based on the dataframe df_gsea_single_pathway
@@ -220,8 +225,6 @@ for (p in 1:nrow(df_gsea_pathways)) {
     df_gsea_single_pathway %>% 
       dplyr::select(object=protein) %>%
       dplyr::mutate(category="genesymbol", additional=NA) %>%
-      # dplyr::select(object=genesymbol) %>%
-      # dplyr::mutate(category="genesymbol", additional=NA) %>%
       dplyr::arrange(dplyr::desc(object)),
     
     df_gsea_single_pathway %>% 
@@ -303,7 +306,6 @@ for (p in 1:nrow(df_gsea_pathways)) {
               angle = strata_addedinfo$angle) +
     theme_minimal() +
     scale_x_discrete(limits = c("Oil", "Molecule", "Target", "Pathway"),
-    # scale_x_discrete(limits = c("Oil", "Molecule", "Gene", "Pathway"),
                      expand = c(0, 0)) + 
     ggtitle(sprintf("%s: Composition and Targets", wanted_bacteria),
             subtitle = sprintf("Pathway = %s", wanted_pathway)) +
@@ -315,9 +317,6 @@ for (p in 1:nrow(df_gsea_pathways)) {
           axis.title.y = element_blank(),
           axis.text.x = element_text(size = alplot_params$size_xlabel, face = "bold")
     )
-  
-  # alplot_code <- sprintf("pathway%03d", p)
-  # alplot_filename <- file.path(output_dir, paste0("Alluvial_", alplot_code, ".svg", collapse = ""))
   
   alplot_filename <- sprintf("%s %s.svg", wanted_bacteria, wanted_pathway)
   alplot_fullpath <- file.path(output_dir, alplot_filename)

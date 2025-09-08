@@ -89,12 +89,14 @@ BioGPS application for phytocomplexes from essential oils.
 
     This script creates a file named "composition.RDS" and another file
     names "composition_new .RDS". It extracts data about composition
-    from an excel file. There are columns related to the presence (as
-    percentage) in the three oils, with the value 0.0333 we mean
-    'traces'. The file composition_new is in a wider format, with one
+    from an excel file. 
+    There are columns related to the presence (as percentage) in the 
+    three oils, with the value 0.0333 we mean 'traces'. 
+    The file composition_new is in a wider format, with one
     column to define the numerical value and another column to define
     the oil; instead, the file composition has one column for each oil.
     In both files there is also the phytochemical classification.
+    The two ways of presenting data are due to different uses on other scripts.
 
 #### Data from BioGPS calculations
 
@@ -117,18 +119,18 @@ exit.
 
 \*The database containing the output of BioGPS from the two steps above
 scan be found at <https://figshare.com/ndownloader/files/57428944> and
-has to be placed in the db folder
+has to be placed in the db folder.
 
 ### Check Data (optional)
 
-#### Data for the table in the paper with all the bacteria numeric information
+#### Data for the table in the paper with all the bacterial numeric information
 
 9.  Run the script step09_check_tablesummary.R
 
     Note that for the part related to biogps the script need access to
     the pocketome database (kindly provided by Molecular Discovery Ltd).
 
-    However, this is not necessary for the analysis
+    However, this is not necessary for the analysis.
 
 ### Analysis
 
@@ -141,7 +143,7 @@ has to be placed in the db folder
 
     Output consists in a series of tabular data sets, including network
     centrality, saved in the file Results_targetfishing.xlsx (in the
-    directory output/targetfishing)
+    directory output/target_fishing)
 
 #### Results as barplots and heatmaps
 
@@ -151,15 +153,16 @@ has to be placed in the db folder
     Results_targetfishing.xlsx (obtained in step10)
 
     Additional input data is in the file manual_curation.xlsx (available
-    in the directory data)
+    in the directory data/Curation_data).
 
-    Several sheets are present, including: multiple_genes proteins
+    Several sheets are present, including: multiple_genes, proteins
     (correct characters -uppercase/lowercase- given that all the
-    genesymbols are stored in the databsase as upercase) target_curation
-    pdb_curation pubmed pocket_curation.
+    genesymbols are stored in the databsase as upercase), target_curation,
+    pdb_curation, pubmed, pocket_curation.
 
-    The sheet Non_ecoli reports data tha were removed (originally
-    present for some errors)
+    The sheet Non_ecoli reports data that were removed (originally
+    present for some errors), likely because E. coli is used as expression 
+    system.
 
     In the sheet multiple_genes, for each bacteria we report genes as
     groups whenever they correspond to the same complex or should be
@@ -180,8 +183,7 @@ has to be placed in the db folder
     NARI NARG/NARH/NARI ...
 
     In the script these are then considered as the same genegroup and
-    the higher centrality value along the genegroup is assigned In a
-    future development.
+    the higher centrality value along the genegroup is assigned.
 
     The script also produces the two barplots (for major and minor
     bacteria) and heatmaps for the major bacteria.
@@ -221,3 +223,48 @@ has to be placed in the db folder
     (whenever available), otherwise it is the old gene-symbol name. Then
     we use this (column gene) with bacteria and oil_eng to group rows
     and take only one row for group (with highest centrality).
+
+#### GSEA
+
+12. Run the script step12_gsea_analysis.R
+
+    In this step we perform pathway enrichment analysis focusing on pathways,
+    molecules, bacteria, and oils. Input data are read from various .RDS files,
+    filtered and processed in order to conduct gene set enrichment analyses 
+    (GSEA) for different bacteria-oil pairs across multiple pathways. 
+    
+    The script identifies gene clusters linked to specific pathways, computes
+    contribution scores, and filters pathways based on significance criteria 
+    like p-value and pathway size. 
+    
+    It then generates a comprehensive heatmap visualizing pathway enrichments
+    across bacteria and oils, using color intensities to represent p-values 
+    and annotations for gene interactions. 
+    
+    Finally, it exports the results—including enriched pathways, gene-pathway
+    associations, molecular contributions, and interaction details—into .xlsx
+    and .RDS files for further analysis.
+
+#### Results as alluvial plot
+
+13. Run the script step13_gsea_alluvialplots.R
+
+    This last R script generates alluvial (flow) plots illustrating the
+    relationships among bacteria, pathways, molecules, genes, and oils based 
+    on pathway enrichment data stored in specific .RDS files. 
+    It reads data from an .xlsx file containing pathways and interaction 
+    details, then processes each pathway-bacteria pair iteratively. 
+    
+    For each pair, it extracts relevant targets with strong interactions, 
+    curates pathway names for clarity (splitting long names into two lines), 
+    and assigns colors to oils. 
+    
+    The script constructs layered data structures to represent different object
+    categories (oils, molecules, genes, pathways), assigns visual styles based 
+    on category, and creates alluvial plots using ggplot2 and ggalluvial, with
+    customized text styles and color schemes. 
+    
+    Each plot visualizes the flow of relationships from oils through molecules 
+    and genes to pathways, and is saved as an SVG file for further 
+    visualization.
+

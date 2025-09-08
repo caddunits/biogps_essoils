@@ -42,12 +42,12 @@ BioGPS application for phytocomplexes from essential oils.
     For each org_code, at the end of the script we report the
     success_rate, a percentage value which estimates how many objects
     have been retrieved, by running the command keggList(org_code). This
-    data is reported as supplementary information in the paper.
+    data is reported as supplementary information in the paper (Table S4).
 
     In order to collect all the information from different .RDS files,
     use the additional script step02b_check_kegg_data.R (it produces an
     xlsx file, with the information - numer of uniprot, number of
-    pathways, ... available as supplementary information).
+    pathways, ... available as supplementary information, Table S4).
 
 3.  Run the script step03_prepare_data_kegg_mapping.R
 

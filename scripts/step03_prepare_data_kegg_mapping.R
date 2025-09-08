@@ -39,9 +39,6 @@ kegg_mapping <- file.path(mapp_dir, "kegg_bacteria_uniprot.RDS")
 gene_mapping_kegg <- file.path(mapp_dir, "gene_uniprot_kegg.RDS")
 
 
-# 
-# NOVITA: VEDERE SE PUO SOSTITUIRE GLI ALTRI DUE 
-# 
 kegg_bacteria_unified <- file.path(mapp_dir, "kegg_bacteria_unified.RDS")
 
 
@@ -159,13 +156,6 @@ cat("CONVERTED", kegg_success_rate, "% OF UNIPROT CODES\n")
 saveRDS(object=kegg_conversion_df, file=gene_mapping_kegg)
 
 
-
-# 
-# ATTENZIONE, VALUTARE SE AGGIUNGERE QUESTA QUA INVECE CHE NELLA SCRIPT SUCCESSIVA,
-# E SCRIVERE QUINDI UN SOLO FILE .RDS
-# (SERVONO I DUE DF SEPARATI? kegg_bacteria_uniprot_df e kegg_conversion_df)
-# 
-
 # Join with data from conversion uniprot-gene
 kegg_bacteria_unified_df <- kegg_bacteria_uniprot_df %>% 
   dplyr::left_join(kegg_conversion_df, by=c('uniprot'='From')) %>% 
@@ -178,28 +168,4 @@ kegg_bacteria_unified_df <- kegg_bacteria_uniprot_df %>%
 
 saveRDS(object=kegg_bacteria_unified_df, file=kegg_bacteria_unified)
 
-
-
-# NOTE SPIEGAZIONE:
-# Il df kegg_bacteria_uniprot_df contiene le associazioni uniprot-pathway per 
-# tutti i batteri
-# Il df kegg_conversion_df contiene i dettagli di tutti i geni per tutti i batteri
-# 
-# Il df kegg_bacteria_unified_df è un join delle due tabelle
-# 
-# 
-# DA CHIARIRE: 
-# * SERVONO TUTTE LE COLONNE? 
-# * I DUE DF SEPARATI VENGONO MAI USATI SINGOLARMENTE?
-# 
-
-
-
-# NOTA: NCBI codes, extracted from KEGG, are not mapped
-# https://www.ncbi.nlm.nih.gov/ 
-# xxxx <- UniProt.ws::mapUniProt(
-#   from="UniProtKB_AC-ID",
-#   to='UniProtKB',
-#   query=c('CAQ30519')
-# )
 

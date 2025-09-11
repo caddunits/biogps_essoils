@@ -124,9 +124,10 @@ alplot_params <- list(
 
 processed_pairs <- c()
 
+print(df_gsea_pathways$pathway)
 
 # Loop over all the pathways
-# for (p in 12:12) {
+# for (p in 2:2) {
 for (p in 1:nrow(df_gsea_pathways)) {
   
   wanted_bacteria <- df_gsea_pathways$bacteria[p]
@@ -147,6 +148,17 @@ for (p in 1:nrow(df_gsea_pathways)) {
     dplyr::filter(class_interaction == "STRONG") %>% 
     dplyr::select(genesymbol) %>% 
     dplyr::distinct()
+  cat("STRONG TARGETS:\n")
+  print(strong_targets, n = 50)
+  
+  nostrong_targets <- df_gsea_targets_interaction %>% 
+    dplyr::filter(bacteria == wanted_bacteria,
+                  pathway == wanted_pathway) %>% 
+    dplyr::filter(class_interaction != "STRONG") %>% 
+    dplyr::select(genesymbol) %>% 
+    dplyr::distinct()
+  cat("OTHER (NO STRONG):\n")
+  print(nostrong_targets)
   
   df_gsea_single_pathway <- df_gsea_molecules_interaction %>% 
     dplyr::filter(bacteria == wanted_bacteria,

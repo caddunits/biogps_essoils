@@ -88,17 +88,6 @@ for (org_code in orgs){
     if (k_name %in% org_strange) next()
     if (k_name %in% org_unknown) next()
     
-    # 
-    # Pay attention, this line is repeated below without the tryCatch
-    # It is correct, and the use of tryCatch could lead to wrong assignments
-    # in case of network problems due to the multiple request to the server
-    # that after a while cause the server to fail in the response.
-    # 
-    
-    #Sys.sleep(0.3)
-    # k_data <- tryCatch(keggGet(k_name), error=function(e) NULL)
-    # k_entry <- k_data[[1]]$ENTRY
-    
     if (k_info == "gene") {
       uniprot_code <- NA
       pathway_names <- NA
@@ -107,7 +96,9 @@ for (org_code in orgs){
     } else if (k_info == "CDS") {
       if (verbose) cat("\tK_NAME:", k_name, "\n")
       
-      # See the comment above
+      # 
+      # Repeat the loop untill it safely reaches the end
+      # 
       repeat{
          query <- safely(keggGet)(k_name)
          if(is.null(query$error))
